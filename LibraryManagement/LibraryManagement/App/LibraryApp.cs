@@ -22,22 +22,22 @@ public class LibraryApp
             switch (input)
             {
                 case "1":
-                    AddBookFlow();
+                    HandleAddBookFlow();
                     break;
                 case "2":
-                    RemoveBookFlow();
+                    HandleRemoveBookFlow();
                     break;
                 case "3":
-                    ShowAllFlow();
+                    HandleShowAllFlow();
                     break;
                 case "4":
-                    SearchFlow();
+                    HandleSearchFlow();
                     break;
                 case "5":
-                    BorrowFlow();
+                    HandleBorrowFlow();
                     break;
                 case "6":
-                    ReturnFlow();
+                    HandleReturnFlow();
                     break;
                 case "0":
                     Console.WriteLine("exit");
@@ -60,27 +60,55 @@ public class LibraryApp
         Console.Write("your choice: ");
     }
 
-    private void AddBookFlow()
+    private void HandleAddBookFlow()
     {
         Console.Write("Name book: ");
-        var title = Console.ReadLine() ?? string.Empty;
+        var title = Console.ReadLine()?.Trim();
 
-        Console.Write("author book: ");
-        var author = Console.ReadLine() ?? string.Empty;
-
-        Console.Write("year book: ");
-        if (!int.TryParse(Console.ReadLine(), out var year))
+        if (string.IsNullOrEmpty(title))
         {
-            Console.WriteLine("unknown format");
+            Console.WriteLine("title empty");
             return;
         }
 
-        var book = new Book { Title = title, Author = author, Year = year };
-        var created = _bookService.Add(book);
+        Console.Write("author book: ");
+        var author = Console.ReadLine()?.Trim();
+
+        if (string.IsNullOrEmpty(author))
+        {
+            Console.WriteLine("author empty");
+            return;
+        }
+
+        var year = 0;
+        var validYear = false;
+
+        while (!validYear)
+        {
+            Console.Write("year book: ");
+
+            if (int.TryParse(Console.ReadLine(), out year))
+            {
+                validYear = true;
+            }
+            else
+            {
+                Console.WriteLine("unknown format");
+            }
+        }
+
+        var createBook = new CreateBookModel
+        {
+            Title = title,
+            Author = author,
+            Year = year
+        };
+
+        var created = _bookService.Add(createBook);
         Console.WriteLine($"book added, code: {created.Code}");
     }
 
-    private void RemoveBookFlow()
+    private void HandleRemoveBookFlow()
     {
         Console.Write("enter code for delete: ");
         if (!int.TryParse(Console.ReadLine(), out var code))
@@ -99,7 +127,7 @@ public class LibraryApp
         }
     }
 
-    private void ShowAllFlow()
+    private void HandleShowAllFlow()
     {
         var allBooks = _bookService.GetAll().ToList();
         if (!allBooks.Any())
@@ -115,7 +143,7 @@ public class LibraryApp
         }
     }
 
-    private void SearchFlow()
+    private void HandleSearchFlow()
     {
         Console.Write("enter name book or author: ");
         var nameBook = Console.ReadLine() ?? string.Empty;
@@ -134,7 +162,7 @@ public class LibraryApp
         }
     }
 
-    private void BorrowFlow()
+    private void HandleBorrowFlow()
     {
         Console.Write("book code to take: ");
         if (!int.TryParse(Console.ReadLine(), out var code))
@@ -153,7 +181,7 @@ public class LibraryApp
         }
     }
 
-    private void ReturnFlow()
+    private void HandleReturnFlow()
     {
         Console.Write("Code of the book to return: ");
         if (!int.TryParse(Console.ReadLine(), out var code))
