@@ -12,23 +12,58 @@ public class BookService : IBookService
         _repository = repository;
     }
 
-    public IEnumerable<Book> GetAll()
+    public IEnumerable<BookModel> GetAll()
     {
-        return _repository.GetAll();
+        return _repository.GetAll()
+            .Select(book => new BookModel
+            {
+                Code = book.Code,
+                Title = book.Title,
+                Author = book.Author,
+                Year = book.Year,
+                BookStatus = book.BookStatus.ToString()
+            });
     }
 
-    public Book? GetByCode(int code)
+    public BookModel? GetByCode(int code)
     {
-        return _repository.GetByCode(code);
+        var book = _repository.GetByCode(code);
+        var bookOrNull = book == null
+            ? null
+            : new BookModel
+            {
+                Code = book.Code,
+                Title = book.Title,
+                Author = book.Author,
+                Year = book.Year,
+                BookStatus = book.BookStatus.ToString()
+            };
+        return bookOrNull;
     }
 
-    public Book Add(Book book)
+    public BookModel Add(CreateBookModel createBook)
     {
-        book.Code = _repository.GetNextCode();
-        book.BookStatus = BookStatus.Available;
+        var book = new Book
+        {
+            Code = _repository.GetNextCode(),
+            Title = createBook.Title,
+            Author = createBook.Author,
+            Year = createBook.Year,
+            BookStatus = BookStatus.Available
+        };
+
         _repository.Add(book);
         _repository.Persist();
-        return book;
+
+        var newBook = new BookModel
+        {
+            Code = book.Code,
+            Title = book.Title,
+            Author = book.Author,
+            Year = book.Year,
+            BookStatus = book.BookStatus.ToString()
+        };
+        return newBook;
     }
 
     public bool Remove(int code)
@@ -44,9 +79,18 @@ public class BookService : IBookService
         return true;
     }
 
-    public IEnumerable<Book> Search(string query)
+    public IEnumerable<BookModel> Search(string query)
     {
-        return _repository.Search(query);
+        var foundBooks = _repository.Search(query)
+            .Select(book => new BookModel
+            {
+                Code = book.Code,
+                Title = book.Title,
+                Author = book.Author,
+                Year = book.Year,
+                BookStatus = book.BookStatus.ToString()
+            });
+        return foundBooks;
     }
 
     public bool Borrow(int code)

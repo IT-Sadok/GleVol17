@@ -1,14 +1,15 @@
-﻿using LibraryManagement.Models;
+﻿namespace LibraryManagement.Services;
 
-namespace LibraryManagement.Services;
+using LibraryManagement.Models;
 
 public interface IBookService
 {
-    IEnumerable<Book> GetAll();
-    Book? GetByCode(int code);
-    Book Add(Book book);
+    IEnumerable<BookModel> GetAll();
+    
+    BookModel? GetByCode(int code);
+    BookModel Add(CreateBookModel book);
     bool Remove(int code);
-    IEnumerable<Book> Search(string query);
+    IEnumerable<BookModel> Search(string query);
     bool Borrow(int code);
     bool Return(int code);
 }
