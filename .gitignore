@@ -475,3 +475,24 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+# Rider / IntelliJ
+.idea/
+
+# VS / Rider user settings
+*.user
+*.DotSettings.user
+
+# Build output
+bin/
+obj/
+out/
+
+# Rider http requests, local data, caches
+.httpRequests/
+dataSources/
+dataSources.local.xml
+
+# Logs/temp
+*.log
+*.tmp
+*.cache
