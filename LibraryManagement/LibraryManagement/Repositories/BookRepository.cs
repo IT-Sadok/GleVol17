@@ -1,7 +1,7 @@
+namespace LibraryManagement.Repositories;
+
 using System.Text.Json;
 using LibraryManagement.Models;
-
-namespace LibraryManagement.Repositories;
 
 public class BookRepository : IBookRepository
 {
@@ -22,6 +22,7 @@ public class BookRepository : IBookRepository
         var json = File.ReadAllText(_filePath);
         return JsonSerializer.Deserialize<List<Book>>(json) ?? new List<Book>();
     }
+
     private void SaveBooks()
     {
         var options = new JsonSerializerOptions();
@@ -33,7 +34,7 @@ public class BookRepository : IBookRepository
     {
         return _booksByCode.Values.OrderBy(book => book.Code);
     }
-    
+
 
     public Book? GetByCode(int code)
     {
@@ -50,6 +51,7 @@ public class BookRepository : IBookRepository
         {
             Console.WriteLine($"book with code: {book.Code} already exists");
         }
+
         SaveBooks();
     }
 

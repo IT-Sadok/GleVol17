@@ -1,5 +1,6 @@
-﻿namespace LibraryManagement.Services;
-using LibraryManagement.Models;
+﻿using LibraryManagement.Models;
+
+namespace LibraryManagement.Services;
 
 public interface IBookService
 {

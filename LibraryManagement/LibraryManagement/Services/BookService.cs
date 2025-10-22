@@ -1,7 +1,7 @@
-﻿using LibraryManagement.Models;
-using LibraryManagement.Repositories;
+﻿namespace LibraryManagement.Services;
 
-namespace LibraryManagement.Services;
+using LibraryManagement.Models;
+using LibraryManagement.Repositories;
 
 public class BookService : IBookService
 {
@@ -38,6 +38,7 @@ public class BookService : IBookService
         {
             return false;
         }
+
         _repository.Remove(code);
         _repository.Persist();
         return true;
@@ -69,6 +70,7 @@ public class BookService : IBookService
         {
             return false;
         }
+
         book.BookStatus = BookStatus.Available;
         _repository.Update(book);
         _repository.Persist();
