@@ -49,7 +49,7 @@ public class BookRepository : IBookRepository
         }
         else
         {
-            Console.WriteLine($"book with code: {book.Code} already exists");
+            throw new InvalidOperationException($"Book with code {book.Code} already exists");
         }
 
         SaveBooks();
