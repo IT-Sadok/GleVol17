@@ -51,19 +51,26 @@ public class BookService : IBookService
             Year = createBook.Year,
             BookStatus = BookStatus.Available
         };
-
-        _repository.Add(book);
-        _repository.Persist();
-
-        var newBook = new BookModel
+        try
         {
-            Code = book.Code,
-            Title = book.Title,
-            Author = book.Author,
-            Year = book.Year,
-            BookStatus = book.BookStatus.ToString()
-        };
-        return newBook;
+            _repository.Add(book);
+            _repository.Persist();
+
+            var newBook = new BookModel
+            {
+                Code = book.Code,
+                Title = book.Title,
+                Author = book.Author,
+                Year = book.Year,
+                BookStatus = book.BookStatus.ToString()
+            };
+            return newBook;
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
     }
 
     public bool Remove(int code)
