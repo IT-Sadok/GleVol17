@@ -2,6 +2,7 @@
 
 using LibraryManagement.Models;
 using LibraryManagement.Repositories;
+using LibraryManagement.Extensions;
 
 public class BookService : IBookService
 {
@@ -14,30 +15,13 @@ public class BookService : IBookService
 
     public IEnumerable<BookModel> GetAll()
     {
-        return _repository.GetAll()
-            .Select(book => new BookModel
-            {
-                Code = book.Code,
-                Title = book.Title,
-                Author = book.Author,
-                Year = book.Year,
-                BookStatus = book.BookStatus.ToString()
-            });
+        return _repository.GetAll().Select(book => book.ToModel());
     }
 
     public BookModel? GetByCode(int code)
     {
         var book = _repository.GetByCode(code);
-        var bookOrNull = book == null
-            ? null
-            : new BookModel
-            {
-                Code = book.Code,
-                Title = book.Title,
-                Author = book.Author,
-                Year = book.Year,
-                BookStatus = book.BookStatus.ToString()
-            };
+        var bookOrNull = book?.ToModel();
         return bookOrNull;
     }
 
@@ -56,14 +40,7 @@ public class BookService : IBookService
             _repository.Add(book);
             _repository.Persist();
 
-            var newBook = new BookModel
-            {
-                Code = book.Code,
-                Title = book.Title,
-                Author = book.Author,
-                Year = book.Year,
-                BookStatus = book.BookStatus.ToString()
-            };
+            var newBook = book.ToModel();
             return newBook;
         }
         catch (InvalidOperationException ex)
@@ -88,15 +65,8 @@ public class BookService : IBookService
 
     public IEnumerable<BookModel> Search(string query)
     {
-        var foundBooks = _repository.Search(query)
-            .Select(book => new BookModel
-            {
-                Code = book.Code,
-                Title = book.Title,
-                Author = book.Author,
-                Year = book.Year,
-                BookStatus = book.BookStatus.ToString()
-            });
+        var foundBooks = _repository.Search(query).Select(book => book.ToModel());
+
         return foundBooks;
     }
 
