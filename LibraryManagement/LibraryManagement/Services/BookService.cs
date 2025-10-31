@@ -25,7 +25,7 @@ public class BookService : IBookService
         return bookOrNull;
     }
 
-    public BookModel Add(CreateBookModel createBook)
+    public async Task<BookModel?> AddAsync(CreateBookModel createBook)
     {
         var book = new Book
         {
@@ -37,8 +37,8 @@ public class BookService : IBookService
         };
         try
         {
-            _repository.Add(book);
-            _repository.Persist();
+            await _repository.AddAsync(book);
+            await _repository.PersistAsync();
 
             var newBook = book.ToModel();
             return newBook;
@@ -50,7 +50,7 @@ public class BookService : IBookService
         }
     }
 
-    public bool Remove(int code)
+    public async Task<bool> RemoveAsync(int code)
     {
         var removedBookCode = _repository.GetByCode(code);
         if (removedBookCode == null)
@@ -58,8 +58,8 @@ public class BookService : IBookService
             return false;
         }
 
-        _repository.Remove(code);
-        _repository.Persist();
+        await _repository.RemoveAsync(code);
+        await _repository.PersistAsync();
         return true;
     }
 
@@ -70,7 +70,7 @@ public class BookService : IBookService
         return foundBooks;
     }
 
-    public bool Borrow(int code)
+    public async Task<bool> BorrowAsync(int code)
     {
         var book = _repository.GetByCode(code);
         if (book == null || book.BookStatus == BookStatus.Busy)
@@ -79,12 +79,12 @@ public class BookService : IBookService
         }
 
         book.BookStatus = BookStatus.Busy;
-        _repository.Update(book);
-        _repository.Persist();
+        await _repository.UpdateAsync(book);
+        await _repository.PersistAsync();
         return true;
     }
 
-    public bool Return(int code)
+    public async Task<bool> ReturnAsync(int code)
     {
         var book = _repository.GetByCode(code);
         if (book == null || book.BookStatus == BookStatus.Available)
@@ -93,8 +93,8 @@ public class BookService : IBookService
         }
 
         book.BookStatus = BookStatus.Available;
-        _repository.Update(book);
-        _repository.Persist();
+       await _repository.UpdateAsync(book);
+       await _repository.PersistAsync();
         return true;
     }
 }

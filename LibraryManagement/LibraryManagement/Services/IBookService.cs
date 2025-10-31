@@ -7,9 +7,9 @@ public interface IBookService
     IEnumerable<BookModel> GetAll();
     
     BookModel? GetByCode(int code);
-    BookModel Add(CreateBookModel book);
-    bool Remove(int code);
+    Task<BookModel?> AddAsync(CreateBookModel createBook);
+    Task<bool> RemoveAsync(int code);
     IEnumerable<BookModel> Search(string query);
-    bool Borrow(int code);
-    bool Return(int code);
+    Task<bool> BorrowAsync(int code);
+    Task<bool> ReturnAsync(int code);
 }
