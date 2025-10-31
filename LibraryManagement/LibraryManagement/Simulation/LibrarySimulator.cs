@@ -5,8 +5,6 @@ namespace LibraryManagement.Simulation;
 
 public static class LibrarySimulator
 {
-    private static readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
-
     public static async Task RunAsync(IBookService bookService, int tasksCount = 100)
     {
         Console.WriteLine($"starting simulation {tasksCount} threads");
@@ -40,30 +38,22 @@ public static class LibrarySimulator
                 var book = books[localIndex % books.Count];
                 var code = book.Code;
 
-                await _semaphoreSlim.WaitAsync();
-                try
+                Console.WriteLine($"tthread {threadId} started on book {code}");
+
+                if (book.BookStatus == "Available")
                 {
-                    Console.WriteLine($"tthread {threadId} started on book {code}");
-
-                    if (book.BookStatus == "Available")
-                    {
-                        await bookService.BorrowAsync(code);
-                        Console.WriteLine($"thread {threadId} Book {code} => Busy");
-                    }
-                    else
-                    {
-                        await bookService.ReturnAsync(code);
-                        Console.WriteLine($"thread {threadId} Book {code} => Available");
-                    }
-
-                    await Task.Delay(100);
-
-                    Console.WriteLine($"thread {threadId} finished work on book {code}");
+                    await bookService.BorrowAsync(code);
+                    Console.WriteLine($"thread {threadId} Book {code} => Busy");
                 }
-                finally
+                else
                 {
-                    _semaphoreSlim.Release();
+                    await bookService.ReturnAsync(code);
+                    Console.WriteLine($"thread {threadId} Book {code} => Available");
                 }
+
+                await Task.Delay(100);
+
+                Console.WriteLine($"thread {threadId} finished work on book {code}");
             }));
         }
 
