@@ -117,17 +117,4 @@ public class BookRepository : IBookRepository
     {
         return _booksByCode.Any() ? _booksByCode.Keys.Max() + 1 : 1;
     }
-
-    public async Task PersistAsync()
-    {
-        await _semaphoreSlim.WaitAsync();
-        try
-        {
-            await SaveBooksAsync();
-        }
-        finally
-        {
-            _semaphoreSlim.Release();
-        }
-    }
 }

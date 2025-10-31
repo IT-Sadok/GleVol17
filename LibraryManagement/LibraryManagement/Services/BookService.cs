@@ -38,7 +38,6 @@ public class BookService : IBookService
         try
         {
             await _repository.AddAsync(book);
-            await _repository.PersistAsync();
 
             var newBook = book.ToModel();
             return newBook;
@@ -59,7 +58,6 @@ public class BookService : IBookService
         }
 
         await _repository.RemoveAsync(code);
-        await _repository.PersistAsync();
         return true;
     }
 
@@ -80,7 +78,6 @@ public class BookService : IBookService
 
         book.BookStatus = BookStatus.Busy;
         await _repository.UpdateAsync(book);
-        await _repository.PersistAsync();
         return true;
     }
 
@@ -94,7 +91,6 @@ public class BookService : IBookService
 
         book.BookStatus = BookStatus.Available;
        await _repository.UpdateAsync(book);
-       await _repository.PersistAsync();
         return true;
     }
 }

@@ -10,6 +10,5 @@ public interface IBookRepository
     IEnumerable<Book> Search(string query);
     Task UpdateAsync(Book book);
     int GetNextCode();
-    Task PersistAsync();
     Task AddAsync(Book book);
 }
