@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace LibraryManagement.Repositories;
 
 using System.Text.Json;
@@ -7,6 +9,7 @@ public class BookRepository : IBookRepository
 {
     private readonly string _filePath = Path.Combine(AppContext.BaseDirectory, "Data", "books.json");
     private readonly Dictionary<int, Book> _booksByCode;
+    private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
     public BookRepository()
     {
@@ -23,11 +26,11 @@ public class BookRepository : IBookRepository
         return JsonSerializer.Deserialize<List<Book>>(json) ?? new List<Book>();
     }
 
-    private void SaveBooks()
+    private async Task SaveBooksAsync()
     {
         var options = new JsonSerializerOptions();
         var json = JsonSerializer.Serialize(_booksByCode.Values, options);
-        File.WriteAllText(_filePath, json);
+        await File.WriteAllTextAsync(_filePath, json);
     }
 
     public IEnumerable<Book> GetAll()
@@ -41,24 +44,40 @@ public class BookRepository : IBookRepository
         return _booksByCode.TryGetValue(code, out var book) ? book : null;
     }
 
-    public void Add(Book book)
+    public async Task AddAsync(Book book)
     {
-        if (!_booksByCode.ContainsKey(book.Code))
+        await _semaphoreSlim.WaitAsync();
+        try
         {
-            _booksByCode.Add(book.Code, book);
-        }
-        else
-        {
-            Console.WriteLine($"book with code: {book.Code} already exists");
-        }
+            if (!_booksByCode.ContainsKey(book.Code))
+            {
+                _booksByCode.Add(book.Code, book);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Book with code {book.Code} already exists");
+            }
 
-        SaveBooks();
+            await SaveBooksAsync();
+        }
+        finally
+        {
+            _semaphoreSlim.Release();
+        }
     }
 
-    public void Remove(int code)
+    public async Task RemoveAsync(int code)
     {
-        _booksByCode.Remove(code);
-        SaveBooks();
+        await _semaphoreSlim.WaitAsync();
+        try
+        {
+            _booksByCode.Remove(code);
+            await SaveBooksAsync();
+        }
+        finally
+        {
+            _semaphoreSlim.Release();
+        }
     }
 
     public IEnumerable<Book> Search(string query)
@@ -74,25 +93,28 @@ public class BookRepository : IBookRepository
             b.Author.ToLowerInvariant().Contains(query));
     }
 
-    public void Update(Book book)
+    public async Task UpdateAsync(Book book)
     {
-        var exists = _booksByCode.ContainsKey(book.Code);
-
-        if (exists)
+        await _semaphoreSlim.WaitAsync();
+        try
         {
-            _booksByCode.Remove(book.Code);
-            _booksByCode.Add(book.Code, book);
-            SaveBooks();
+            var exists = _booksByCode.ContainsKey(book.Code);
+
+            if (exists)
+            {
+                _booksByCode.Remove(book.Code);
+                _booksByCode.Add(book.Code, book);
+                await SaveBooksAsync();
+            }
+        }
+        finally
+        {
+            _semaphoreSlim.Release();
         }
     }
 
     public int GetNextCode()
     {
         return _booksByCode.Any() ? _booksByCode.Keys.Max() + 1 : 1;
-    }
-
-    public void Persist()
-    {
-        SaveBooks();
     }
 }

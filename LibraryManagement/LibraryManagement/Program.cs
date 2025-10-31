@@ -6,4 +6,4 @@ var repository = new BookRepository();
 var service = new BookService(repository);
 var app = new LibraryApp(service);
 
-app.Run();
+await app.Run();

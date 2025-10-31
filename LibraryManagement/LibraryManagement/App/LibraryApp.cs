@@ -1,5 +1,6 @@
 ﻿namespace LibraryManagement.App;
 
+using LibraryManagement.Simulation;
 using LibraryManagement.Models;
 using LibraryManagement.Services;
 
@@ -12,7 +13,7 @@ public class LibraryApp
         _bookService = bookService;
     }
 
-    public void Run()
+    public async Task Run()
     {
         while (true)
         {
@@ -22,10 +23,10 @@ public class LibraryApp
             switch (input)
             {
                 case "1":
-                    HandleAddBookFlow();
+                    await HandleAddBookFlowAsync();
                     break;
                 case "2":
-                    HandleRemoveBookFlow();
+                    await HandleRemoveBookFlowAsync();
                     break;
                 case "3":
                     HandleShowAllFlow();
@@ -34,10 +35,13 @@ public class LibraryApp
                     HandleSearchFlow();
                     break;
                 case "5":
-                    HandleBorrowFlow();
+                   await HandleBorrowFlowAsync();
                     break;
                 case "6":
-                    HandleReturnFlow();
+                    await HandleReturnFlowAsync();
+                    break;
+                case "7":
+                    await HandleLibrarySimulatorAsync();
                     break;
                 case "0":
                     Console.WriteLine("exit");
@@ -56,11 +60,12 @@ public class LibraryApp
         Console.WriteLine("4. search book");
         Console.WriteLine("5. borrow book");
         Console.WriteLine("6. return book");
+        Console.WriteLine("7. simulator with 100 threads");
         Console.WriteLine("0. Exit?");
         Console.Write("your choice: ");
     }
 
-    private void HandleAddBookFlow()
+    private async Task HandleAddBookFlowAsync()
     {
         Console.Write("Name book: ");
         var title = Console.ReadLine()?.Trim();
@@ -104,11 +109,11 @@ public class LibraryApp
             Year = year
         };
 
-        var created = _bookService.Add(createBook);
+        var created = await _bookService.AddAsync(createBook);
         Console.WriteLine($"book added, code: {created.Code}");
     }
 
-    private void HandleRemoveBookFlow()
+    private async Task HandleRemoveBookFlowAsync()
     {
         Console.Write("enter code for delete: ");
         if (!int.TryParse(Console.ReadLine(), out var code))
@@ -117,7 +122,7 @@ public class LibraryApp
             return;
         }
 
-        if (_bookService.Remove(code))
+        if (await _bookService.RemoveAsync(code))
         {
             Console.WriteLine("book deleted");
         }
@@ -162,7 +167,7 @@ public class LibraryApp
         }
     }
 
-    private void HandleBorrowFlow()
+    private async Task HandleBorrowFlowAsync()
     {
         Console.Write("book code to take: ");
         if (!int.TryParse(Console.ReadLine(), out var code))
@@ -171,7 +176,7 @@ public class LibraryApp
             return;
         }
 
-        if (_bookService.Borrow(code))
+        if (await _bookService.BorrowAsync(code))
         {
             Console.WriteLine("the book is taken");
         }
@@ -181,7 +186,7 @@ public class LibraryApp
         }
     }
 
-    private void HandleReturnFlow()
+    private async Task HandleReturnFlowAsync()
     {
         Console.Write("Code of the book to return: ");
         if (!int.TryParse(Console.ReadLine(), out var code))
@@ -190,7 +195,7 @@ public class LibraryApp
             return;
         }
 
-        if (_bookService.Return(code))
+        if (await _bookService.ReturnAsync(code))
         {
             Console.WriteLine("book is returned");
         }
@@ -198,5 +203,10 @@ public class LibraryApp
         {
             Console.WriteLine("unable to return (maybe the book was not found or is already available)");
         }
+    }
+
+    private async Task HandleLibrarySimulatorAsync()
+    {
+        await LibrarySimulator.RunAsync(_bookService);
     }
 }
