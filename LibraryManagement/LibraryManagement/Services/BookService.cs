@@ -2,6 +2,7 @@
 
 using LibraryManagement.Models;
 using LibraryManagement.Repositories;
+using LibraryManagement.Extensions;
 
 public class BookService : IBookService
 {
@@ -14,34 +15,17 @@ public class BookService : IBookService
 
     public IEnumerable<BookModel> GetAll()
     {
-        return _repository.GetAll()
-            .Select(book => new BookModel
-            {
-                Code = book.Code,
-                Title = book.Title,
-                Author = book.Author,
-                Year = book.Year,
-                BookStatus = book.BookStatus.ToString()
-            });
+        return _repository.GetAll().Select(book => book.ToModel());
     }
 
     public BookModel? GetByCode(int code)
     {
         var book = _repository.GetByCode(code);
-        var bookOrNull = book == null
-            ? null
-            : new BookModel
-            {
-                Code = book.Code,
-                Title = book.Title,
-                Author = book.Author,
-                Year = book.Year,
-                BookStatus = book.BookStatus.ToString()
-            };
+        var bookOrNull = book?.ToModel();
         return bookOrNull;
     }
 
-    public BookModel Add(CreateBookModel createBook)
+    public async Task<BookModel?> AddAsync(CreateBookModel createBook)
     {
         var book = new Book
         {
@@ -51,22 +35,21 @@ public class BookService : IBookService
             Year = createBook.Year,
             BookStatus = BookStatus.Available
         };
-
-        _repository.Add(book);
-        _repository.Persist();
-
-        var newBook = new BookModel
+        try
         {
-            Code = book.Code,
-            Title = book.Title,
-            Author = book.Author,
-            Year = book.Year,
-            BookStatus = book.BookStatus.ToString()
-        };
-        return newBook;
+            await _repository.AddAsync(book);
+
+            var newBook = book.ToModel();
+            return newBook;
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
     }
 
-    public bool Remove(int code)
+    public async Task<bool> RemoveAsync(int code)
     {
         var removedBookCode = _repository.GetByCode(code);
         if (removedBookCode == null)
@@ -74,26 +57,18 @@ public class BookService : IBookService
             return false;
         }
 
-        _repository.Remove(code);
-        _repository.Persist();
+        await _repository.RemoveAsync(code);
         return true;
     }
 
     public IEnumerable<BookModel> Search(string query)
     {
-        var foundBooks = _repository.Search(query)
-            .Select(book => new BookModel
-            {
-                Code = book.Code,
-                Title = book.Title,
-                Author = book.Author,
-                Year = book.Year,
-                BookStatus = book.BookStatus.ToString()
-            });
+        var foundBooks = _repository.Search(query).Select(book => book.ToModel());
+
         return foundBooks;
     }
 
-    public bool Borrow(int code)
+    public async Task<bool> BorrowAsync(int code)
     {
         var book = _repository.GetByCode(code);
         if (book == null || book.BookStatus == BookStatus.Busy)
@@ -102,12 +77,11 @@ public class BookService : IBookService
         }
 
         book.BookStatus = BookStatus.Busy;
-        _repository.Update(book);
-        _repository.Persist();
+        await _repository.UpdateAsync(book);
         return true;
     }
 
-    public bool Return(int code)
+    public async Task<bool> ReturnAsync(int code)
     {
         var book = _repository.GetByCode(code);
         if (book == null || book.BookStatus == BookStatus.Available)
@@ -116,8 +90,7 @@ public class BookService : IBookService
         }
 
         book.BookStatus = BookStatus.Available;
-        _repository.Update(book);
-        _repository.Persist();
+       await _repository.UpdateAsync(book);
         return true;
     }
 }
