@@ -13,12 +13,10 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // DbContext
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection")));
 
-        // Identity (аналог твого коду з Program.cs)
         services
             .AddIdentityCore<AppUser>(options =>
             {
