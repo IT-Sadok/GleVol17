@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using MedicTrack.Application.Options;
+using MedicTrack.Infrastructure.Constants;
 using MedicTrack.Infrastructure.IdentityModels;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -23,8 +24,8 @@ public class JwtService : IJwtService
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-            new Claim("firstName", user.FirstName ?? string.Empty),
-            new Claim("lastName", user.LastName ?? string.Empty)
+            new Claim(JwtClaimKeys.FirstName, user.FirstName ?? string.Empty),
+            new Claim(JwtClaimKeys.LastName, user.LastName ?? string.Empty)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
