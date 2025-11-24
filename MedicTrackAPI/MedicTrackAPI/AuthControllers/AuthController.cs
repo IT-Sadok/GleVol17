@@ -1,37 +1,27 @@
-﻿using MedicTrack.Infrastructure.IdentityModels;
-using MedicTrack.Infrastructure.Services;
+﻿using MedicTrack.Application.Interfaces;
 using MedicTrackAPI.AuthModels;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MedicTrackAPI.AuthControllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(
-    UserManager<AppUser> userManager,
-    SignInManager<AppUser> signInManager,
-    IJwtService jwtService)
-    : ControllerBase
+public class AuthController(IAuthenticationService authenticationService) : ControllerBase
 {
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterModel model)
+    public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var user = new AppUser
-        {
-            UserName = model.Email,
-            Email = model.Email,
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            BirthDate = model.BirthDate
-        };
-
-        var result = await userManager.CreateAsync(user, model.Password);
+        var result = await authenticationService.RegisterAsync(
+            model.Email,
+            model.Password,
+            model.FirstName,
+            model.LastName,
+            model.BirthDate);
 
         if (!result.Succeeded)
         {
@@ -42,29 +32,22 @@ public class AuthController(
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginModel model)
+    public async Task<IActionResult> LoginAsync([FromBody] LoginModel model)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var user = await userManager.FindByEmailAsync(model.Email);
-        if (user == null)
+        var token = await authenticationService.LoginAsync(
+            model.Email,
+            model.Password);
+
+        if (token is null)
         {
             return Unauthorized("Invalid credentials");
         }
 
-        var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-        if (!result.Succeeded)
-        {
-            return Unauthorized("Invalid credentials");
-        }
-
-        var token = jwtService.GenerateToken(user);
-        return Ok(new
-        {
-            token
-        });
+        return Ok(new { token });
     }
 }

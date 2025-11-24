@@ -10,4 +10,10 @@
       <ProjectReference Include="..\MedicTrack.Domain\MedicTrack.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Microsoft.Extensions.Identity.Core">
+        <HintPath>..\..\..\..\..\..\Program Files (x86)\dotnet\packs\Microsoft.AspNetCore.App.Ref\8.0.21\ref\net8.0\Microsoft.Extensions.Identity.Core.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>
