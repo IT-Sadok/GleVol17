@@ -1,4 +1,5 @@
-﻿using MedicTrack.Application.Interfaces;
+﻿using MedicTrack.Application.Auth.Requests;
+using MedicTrack.Application.Interfaces;
 using MedicTrackAPI.AuthModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,12 +17,16 @@ public class AuthController(IAuthenticationService authenticationService) : Cont
             return BadRequest(ModelState);
         }
 
-        var result = await authenticationService.RegisterAsync(
-            model.Email,
-            model.Password,
-            model.FirstName,
-            model.LastName,
-            model.BirthDate);
+        var request = new RegisterRequest
+        {
+            Email = model.Email,
+            Password = model.Password,
+            FirstName = model.FirstName,
+            LastName = model.LastName,
+            BirthDate = model.BirthDate
+        };
+
+        var result = await authenticationService.RegisterAsync(request);
 
         if (!result.Succeeded)
         {
@@ -39,15 +44,20 @@ public class AuthController(IAuthenticationService authenticationService) : Cont
             return BadRequest(ModelState);
         }
 
-        var token = await authenticationService.LoginAsync(
-            model.Email,
-            model.Password);
+        var request = new LoginRequest
+        {
+            Email = model.Email,
+            Password = model.Password
+        };
 
-        if (token is null)
+        var response = await authenticationService.LoginAsync(request);
+        
+
+        if (response is null)
         {
             return Unauthorized("Invalid credentials");
         }
 
-        return Ok(new { token });
+        return Ok(response);
     }
 }

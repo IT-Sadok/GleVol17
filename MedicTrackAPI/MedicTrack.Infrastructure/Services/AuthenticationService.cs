@@ -1,4 +1,6 @@
-﻿using MedicTrack.Application.Interfaces;
+﻿using MedicTrack.Application.Auth.Requests;
+using MedicTrack.Application.Auth.Responses;
+using MedicTrack.Application.Interfaces;
 using MedicTrack.Infrastructure.IdentityModels;
 using Microsoft.AspNetCore.Identity;
 
@@ -10,41 +12,41 @@ public class AuthenticationService(
     IJwtService jwtService)
     : IAuthenticationService
 {
-    public async Task<IdentityResult> RegisterAsync(
-        string email,
-        string password,
-        string firstName,
-        string lastName,
-        DateTime birthDate)
+    public async Task<IdentityResult> RegisterAsync(RegisterRequest request)
     {
         var user = new AppUser
         {
-            Email = email,
-            UserName = email,
-            FirstName = firstName,
-            LastName = lastName,
-            BirthDate = birthDate
+            Email = request.Email,
+            UserName = request.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            BirthDate = request.BirthDate
         };
 
-        var result = await userManager.CreateAsync(user, password);
+        var result = await userManager.CreateAsync(user, request.Password);
         return result;
     }
 
-    public async Task<string?> LoginAsync(string email, string password)
+    public async Task<UserLoginResponse?> LoginAsync(LoginRequest request)
     {
-        var user = await userManager.FindByEmailAsync(email);
-        if (user == null)
+        var user = await userManager.FindByEmailAsync(request.Email);
+        if (user is null)
         {
             return null;
         }
 
-        var result = await signInManager.CheckPasswordSignInAsync(user, password, false);
-        if (!result.Succeeded)
+        var signInResult = await signInManager.CheckPasswordSignInAsync(user, request.Password,false);
+
+        if (!signInResult.Succeeded)
         {
             return null;
         }
 
         var token = jwtService.GenerateToken(user);
-        return token;
+
+        return new UserLoginResponse
+        {
+            Token = token
+        };
     }
 }
