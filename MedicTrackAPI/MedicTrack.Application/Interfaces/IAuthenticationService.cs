@@ -1,15 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using MedicTrack.Application.Auth.Requests;
+using MedicTrack.Application.Auth.Responses;
+using Microsoft.AspNetCore.Identity;
 
 namespace MedicTrack.Application.Interfaces;
 
 public interface IAuthenticationService
 {
-    Task<IdentityResult> RegisterAsync(
-        string email,
-        string password,
-        string firstName,
-        string lastName,
-        DateTime birthDate);
-
-    Task<string?> LoginAsync(string email, string password);
+    Task<IdentityResult> RegisterAsync(RegisterRequest  request);
+    Task<UserLoginResponse?> LoginAsync(LoginRequest request);
 }
