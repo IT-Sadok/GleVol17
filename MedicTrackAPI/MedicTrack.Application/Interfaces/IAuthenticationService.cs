@@ -6,6 +6,6 @@ namespace MedicTrack.Application.Interfaces;
 
 public interface IAuthenticationService
 {
-    Task<IdentityResult> RegisterAsync(RegisterRequest  request);
+    Task<UserLoginResponse?> RegisterAsync(RegisterRequest request);
     Task<UserLoginResponse?> LoginAsync(LoginRequest request);
 }

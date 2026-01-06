@@ -12,7 +12,7 @@ public class AuthenticationService(
     IJwtService jwtService)
     : IAuthenticationService
 {
-    public async Task<IdentityResult> RegisterAsync(RegisterRequest request)
+    public async Task<UserLoginResponse?> RegisterAsync(RegisterRequest request)
     {
         var user = new AppUser
         {
@@ -24,7 +24,17 @@ public class AuthenticationService(
         };
 
         var result = await userManager.CreateAsync(user, request.Password);
-        return result;
+        if (!result.Succeeded)
+        {
+            return null;
+        }
+
+        var token = jwtService.GenerateToken(user);
+
+        return new UserLoginResponse
+        {
+            Token = token
+        };
     }
 
     public async Task<UserLoginResponse?> LoginAsync(LoginRequest request)
@@ -35,7 +45,7 @@ public class AuthenticationService(
             return null;
         }
 
-        var signInResult = await signInManager.CheckPasswordSignInAsync(user, request.Password,false);
+        var signInResult = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
         if (!signInResult.Succeeded)
         {
