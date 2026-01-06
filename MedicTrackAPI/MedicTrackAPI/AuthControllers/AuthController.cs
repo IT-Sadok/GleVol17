@@ -28,12 +28,12 @@ public class AuthController(IAuthenticationService authenticationService) : Cont
 
         var result = await authenticationService.RegisterAsync(request);
 
-        if (!result.Succeeded)
+        if (result is null)
         {
-            return BadRequest(result.Errors);
+            return BadRequest("Registration failed");
         }
 
-        return Ok("User registered successfully");
+        return Ok(result);
     }
 
     [HttpPost("login")]
