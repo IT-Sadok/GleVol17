@@ -3,9 +3,9 @@ using MedicTrack.Application.Auth.Requests;
 
 namespace MedicTrack.Application.Auth.Validators;
 
-public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
+public class SignUpRequestValidator : AbstractValidator<SignUpRequest>
 {
-    public RegisterRequestValidator()
+    public SignUpRequestValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty()

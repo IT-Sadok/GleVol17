@@ -12,11 +12,11 @@ public class AuthenticationService(
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
     IJwtService jwtService,
-    IValidator<RegisterRequest> registerValidator,
+    IValidator<SignUpRequest> registerValidator,
     IValidator<LoginRequest> loginValidator)
     : IAuthenticationService
 {
-    public async Task<UserLoginResponse?> RegisterAsync(RegisterRequest request)
+    public async Task<UserLoginResponse?> SignUpAsync(SignUpRequest request)
     {
         await registerValidator.ValidateAndThrowAsync(request);
 

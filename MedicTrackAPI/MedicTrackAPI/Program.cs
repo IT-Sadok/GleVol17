@@ -19,7 +19,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 builder.Services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
-builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
+builder.Services.AddScoped<IValidator<SignUpRequest>, SignUpRequestValidator>();
 
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
@@ -42,10 +42,10 @@ app.MapControllers();
 
 var authGroup = app.MapGroup("/api/auth").WithTags("Auth");
 
-authGroup.MapPost("/register",
+authGroup.MapPost("/signup",
     async ([FromBody] RegisterModel model, IAuthenticationService authService) =>
     {
-        var request = new RegisterRequest
+        var request = new SignUpRequest
         {
             Email = model.Email,
             Password = model.Password,
@@ -54,8 +54,8 @@ authGroup.MapPost("/register",
             BirthDate = model.BirthDate
         };
 
-        var result = await authService.RegisterAsync(request);
-        return result is null ? Results.BadRequest("registration failed") : Results.Ok(result);
+        var result = await authService.SignUpAsync(request);
+        return result is null ? Results.BadRequest("signup failed") : Results.Ok(result);
     });
 
 authGroup.MapPost("/login",
