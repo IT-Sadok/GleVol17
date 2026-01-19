@@ -16,7 +16,7 @@ public class AuthenticationService(
     IValidator<LoginRequest> loginValidator)
     : IAuthenticationService
 {
-    public async Task<UserLoginResponse?> SignUpAsync(SignUpRequest request)
+    public async Task<UserLoginResponse> SignUpAsync(SignUpRequest request)
     {
         await registerValidator.ValidateAndThrowAsync(request);
 
@@ -32,7 +32,8 @@ public class AuthenticationService(
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
-            return null;
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+            throw new InvalidOperationException($"Registration failed: {errors}");
         }
 
         var token = jwtService.GenerateToken(user);

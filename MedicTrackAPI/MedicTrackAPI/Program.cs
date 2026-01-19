@@ -43,7 +43,7 @@ app.MapControllers();
 var authGroup = app.MapGroup("/api/auth").WithTags("Auth");
 
 authGroup.MapPost("/signup",
-    async ([FromBody] RegisterModel model, IAuthenticationService authService) =>
+    async (RegisterModel model, IAuthenticationService authService) =>
     {
         var request = new SignUpRequest
         {
@@ -54,8 +54,15 @@ authGroup.MapPost("/signup",
             BirthDate = model.BirthDate
         };
 
-        var result = await authService.SignUpAsync(request);
-        return result is null ? Results.BadRequest("signup failed") : Results.Ok(result);
+        try
+        {
+            var result = await authService.SignUpAsync(request);
+            return Results.Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.BadRequest(ex.Message);
+        }
     });
 
 authGroup.MapPost("/login",
