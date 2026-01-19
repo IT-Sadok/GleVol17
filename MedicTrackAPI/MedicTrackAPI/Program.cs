@@ -7,6 +7,7 @@ using MedicTrackAPI.AuthModels;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 using MedicTrack.Application.Auth.Validators;
+using MedicTrackAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,43 +40,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-var authGroup = app.MapGroup("/api/auth").WithTags("Auth");
-
-authGroup.MapPost("/signup",
-    async (RegisterModel model, IAuthenticationService authService) =>
-    {
-        var request = new SignUpRequest
-        {
-            Email = model.Email,
-            Password = model.Password,
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            BirthDate = model.BirthDate
-        };
-
-        try
-        {
-            var result = await authService.SignUpAsync(request);
-            return Results.Ok(result);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Results.BadRequest(ex.Message);
-        }
-    });
-
-authGroup.MapPost("/login",
-    async ([FromBody] LoginModel model, IAuthenticationService authService) =>
-    {
-        var request = new LoginRequest
-        {
-            Email = model.Email,
-            Password = model.Password
-        };
-
-        var response = await authService.LoginAsync(request);
-        return response is null ? Results.Unauthorized() : Results.Ok(response);
-    });
+app.MapAuthEndpoints();
 
 app.Run();
