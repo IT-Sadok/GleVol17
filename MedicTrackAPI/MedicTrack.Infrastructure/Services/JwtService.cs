@@ -8,14 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace MedicTrack.Infrastructure.Services;
 
-public class JwtService : IJwtService
+public class JwtService(IOptions<JwtOptions> jwtOptions) : IJwtService
 {
-    private readonly JwtOptions _jwtOptions;
-
-    public JwtService(IOptions<JwtOptions> jwtOptions)
-    {
-        _jwtOptions = jwtOptions.Value;
-    }
+    private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
     public string GenerateToken(AppUser user)
     {
