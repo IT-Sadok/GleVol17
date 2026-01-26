@@ -4,6 +4,7 @@ using MedicTrack.Application.Interfaces;
 using MedicTrack.Infrastructure.IdentityModels;
 using Microsoft.AspNetCore.Identity;
 using FluentValidation;
+using MedicTrack.Application.Common;
 
 
 namespace MedicTrack.Infrastructure.Services;
@@ -16,9 +17,14 @@ public class AuthenticationService(
     IValidator<LoginRequest> loginValidator)
     : IAuthenticationService
 {
-    public async Task<UserLoginResponse> SignUpAsync(SignUpRequest request)
+    public async Task<Result<UserLoginResponse>> SignUpAsync(SignUpRequest request)
     {
-        await registerValidator.ValidateAndThrowAsync(request);
+        var validation = await registerValidator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            var error = validation.Errors.First().ErrorMessage;
+            return Result<UserLoginResponse>.Failure(error);
+        }
 
         var user = new AppUser
         {
@@ -32,21 +38,27 @@ public class AuthenticationService(
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
-            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
-            throw new InvalidOperationException($"Registration failed: {errors}");
+            var errors = string.Join("; ",result.Errors.Select(e => e.Description));
+            return Result<UserLoginResponse>.Failure(errors);
         }
 
         var token = jwtService.GenerateToken(user);
 
-        return new UserLoginResponse
+        return Result<UserLoginResponse>.Success(new UserLoginResponse
         {
             Token = token
-        };
+        });
     }
 
     public async Task<UserLoginResponse?> LoginAsync(LoginRequest request)
     {
-        await loginValidator.ValidateAndThrowAsync(request);
+     
+        var validation = await loginValidator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            return null;
+        }
+            
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user is null)
         {

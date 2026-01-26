@@ -25,7 +25,9 @@ public static class AuthEndpoints
             };
 
             var result = await authService.SignUpAsync(request);
-            return Results.Ok(result);
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
         });
 
         group.MapPost("/login", async (
