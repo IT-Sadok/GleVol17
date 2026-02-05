@@ -3,8 +3,6 @@ using MedicTrack.Application.Interfaces;
 using MedicTrack.Application.Options;
 using MedicTrack.Infrastructure.Extensions;
 using MedicTrack.Infrastructure.Services;
-using MedicTrackAPI.AuthModels;
-using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 using MedicTrack.Application.Auth.Validators;
 using MedicTrackAPI.Endpoints;
@@ -18,6 +16,8 @@ builder.Services.Configure<JwtOptions>(
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+builder.Services.AddScoped<IDoctorService, DoctorService>();
 
 builder.Services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
 builder.Services.AddScoped<IValidator<SignUpRequest>, SignUpRequestValidator>();
@@ -41,5 +41,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapAuthEndpoints();
+app.MapDoctorEndpoints();
 
 app.Run();

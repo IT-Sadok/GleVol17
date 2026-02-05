@@ -1,10 +1,10 @@
-﻿using MedicTrack.Application.Auth.Requests;
+﻿using FluentValidation;
+using MedicTrack.Application.Auth.Requests;
 using MedicTrack.Application.Auth.Responses;
+using MedicTrack.Application.Common;
 using MedicTrack.Application.Interfaces;
 using MedicTrack.Infrastructure.IdentityModels;
 using Microsoft.AspNetCore.Identity;
-using FluentValidation;
-using MedicTrack.Application.Common;
 
 
 namespace MedicTrack.Infrastructure.Services;
