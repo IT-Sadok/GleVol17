@@ -1,4 +1,5 @@
-﻿using MedicTrack.Application.Interfaces;
+﻿using MedicTrack.Application.Doctors.Responses;
+using MedicTrack.Application.Interfaces;
 
 namespace MedicTrackAPI.Endpoints;
 
@@ -13,6 +14,22 @@ public static class DoctorEndpoints
         {
             var doctors = await service.GetDoctorsAsync();
             return Results.Ok(doctors);
+        });
+
+        group.MapGet("/{doctorId:guid}/unavailability",
+            async (Guid doctorId, IDoctorService service) =>
+            {
+                var result = await service.GetUnavailabilityByDoctorIdAsync(doctorId);
+                return Results.Ok(result);
+            });
+
+
+        group.MapPost("", async (
+            CreateDoctorResponse request,
+            IDoctorService doctorService) =>
+        {
+            var id = await doctorService.CreateAsync(request);
+            return Results.Created($"/api/doctors/{id}", new { id });
         });
 
         return group;

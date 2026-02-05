@@ -11,4 +11,4 @@ public class DoctorUnavailability
     public DateTime EndUtc { get; set; }
 
     public string? Reason { get; set; }
-}
+} 
