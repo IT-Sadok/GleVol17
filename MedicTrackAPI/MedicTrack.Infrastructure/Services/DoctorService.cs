@@ -37,7 +37,7 @@ public class DoctorService(AppDbContext db) : IDoctorService
             .ToListAsync();
     }
     
-    public async Task<Guid> CreateAsync(CreateDoctorResponse request)
+    public async Task<Guid> CreateAsync(CreateDoctorRequest request)
     {
         var newDoctor = new Doctor
         {

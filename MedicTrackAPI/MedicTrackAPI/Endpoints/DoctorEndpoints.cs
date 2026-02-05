@@ -25,7 +25,7 @@ public static class DoctorEndpoints
 
 
         group.MapPost("", async (
-            CreateDoctorResponse request,
+            CreateDoctorRequest request,
             IDoctorService doctorService) =>
         {
             var id = await doctorService.CreateAsync(request);

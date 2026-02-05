@@ -1,6 +1,6 @@
 ﻿namespace MedicTrack.Application.Doctors.Responses;
 
-public class CreateDoctorResponse
+public class CreateDoctorRequest
 {
     public string FirstName { get; init; } = string.Empty;
     public string LastName { get; init; } = string.Empty;

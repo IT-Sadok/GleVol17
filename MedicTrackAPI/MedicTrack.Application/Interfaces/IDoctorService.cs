@@ -6,5 +6,5 @@ public interface IDoctorService
 {
     Task<IReadOnlyList<DoctorListItemResponse>> GetDoctorsAsync();
     Task<List<DoctorUnavailabilityResponse>> GetUnavailabilityByDoctorIdAsync(Guid doctorId);
-    Task<Guid> CreateAsync(CreateDoctorResponse response);
+    Task<Guid> CreateAsync(CreateDoctorRequest response);
 }
